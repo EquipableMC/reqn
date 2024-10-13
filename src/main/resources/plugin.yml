@@ -1,6 +1,7 @@
 name: Reqn
 description: An HTTP request library for Skript 2.X
 version: @version@
+api-version: 1.13
 main: com.btk5h.reqn.Reqn
 depend: [Skript]
 website: https://github.com/EquipableMC/reqn

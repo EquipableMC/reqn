@@ -32,6 +32,8 @@ import java.io.IOException;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 
+import org.bstats.bukkit.Metrics;
+
 public final class Reqn extends JavaPlugin {
 
   private static Reqn instance;
@@ -52,6 +54,10 @@ public final class Reqn extends JavaPlugin {
     } catch (IOException e) {
       e.printStackTrace();
     }
+
+    int pluginId = 23616;
+    Metrics metrics = new Metrics(this, pluginId);
+
   }
 
   public static SkriptAddon getAddonInstance() {

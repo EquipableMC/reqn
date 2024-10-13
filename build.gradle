@@ -24,10 +24,16 @@ repositories {
   }
 }
 
+shadowJar {
+  archiveFileName = project.name + "-" + project.version + ".jar"
+  relocate("org.bstats", "com.btk5h.reqn.metrics")
+}
+
 dependencies {
   compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
   compileOnly("com.github.SkriptLang:Skript:2.5.1")
   implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
+  implementation("org.bstats:bstats-bukkit:3.0.2")
 }
 
 def targetJavaVersion = 17
