@@ -25,6 +25,7 @@
 
 package com.btk5h.reqn.skript;
 
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import com.btk5h.reqn.HttpResponse;
 
 import com.btk5h.reqn.Reqn;
@@ -55,7 +56,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import ch.njol.skript.variables.Variables;
@@ -75,20 +75,7 @@ public class EffRequest extends Effect {
 
   private static final Pattern HEADER = Pattern.compile("(.*?):(.+)");
   private static final String[] EMPTY_STRING_ARRAY = new String[0];
-  private static final Field DELAYED;
 
-  static {
-    Field _DELAYED = null;
-    try {
-      _DELAYED = Delay.class.getDeclaredField("delayed");
-      _DELAYED.setAccessible(true);
-    } catch (NoSuchFieldException e) {
-      e.printStackTrace();
-      Skript.warning("Skript's 'delayed' method could not be resolved. Some Skript warnings may " +
-          "not be available.");
-    }
-    DELAYED = _DELAYED;
-  }
 
   private static final ExecutorService threadPool =
       Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -143,11 +130,8 @@ public class EffRequest extends Effect {
 
   @SuppressWarnings("unchecked")
   private void delay(Event e) {
-    if (DELAYED != null) {
-      try {
-        ((Set<Event>) DELAYED.get(null)).add(e);
-      } catch (IllegalAccessException ignored) {
-      }
+    if (Delay.isDelayed(e)) {
+      Delay.addDelayedEvent(e);
     }
   }
 
@@ -267,7 +251,7 @@ public class EffRequest extends Effect {
   @SuppressWarnings("unchecked")
   @Override
   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-                      SkriptParser.ParseResult parseResult) {
+                      ParseResult parseResult) {
     method = (Expression<String>) exprs[0];
     url = (Expression<String>) exprs[1];
     switch (parseResult.mark) {

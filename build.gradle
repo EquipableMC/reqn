@@ -1,56 +1,60 @@
-/*
- * MIT License
- *
- * Copyright (c) 2016 Bryan Terce
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- */
-
 import org.apache.tools.ant.filters.ReplaceTokens
 
-group 'com.btk5h'
-version '1.2.5'
+plugins {
+  id 'java'
+  id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
 
-apply plugin: 'java'
-
-compileJava.options.encoding = 'UTF-8'
-sourceCompatibility = 1.8
+group = 'com.btk5h'
+version = '1.2.6-EquipableMC-Patch'
 
 repositories {
   mavenCentral()
   maven {
-    url 'https://papermc.io/repo/repository/maven-public/'
+    name = "sonatype"
+    url = "https://oss.sonatype.org/content/groups/public/"
   }
-  maven {
-    url 'http://jitpack.io/'
-  }
-}
 
-processResources {
-  inputs.files 'build.gradle'
-  from sourceSets.main.resources.srcDirs
-  filter(ReplaceTokens, tokens: [version: version])
+  // Paper
+  maven { url "https://repo.papermc.io/repository/maven-public/" }
+
+  // Skript
+  maven {
+    url "https://repo.skriptlang.org/releases"
+  }
 }
 
 dependencies {
-  compileOnly 'org.eclipse.jdt:org.eclipse.jdt.annotation:2.0.0'
-  compileOnly 'com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT'
-  compileOnly 'com.github.SkriptLang:Skript:2.5.1'
+  compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
+  compileOnly("com.github.SkriptLang:Skript:2.5.1")
+  implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
+}
+
+def targetJavaVersion = 17
+java {
+  def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+  sourceCompatibility = javaVersion
+  targetCompatibility = javaVersion
+  if (JavaVersion.current() < javaVersion) {
+    toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+  }
+}
+
+tasks.withType(JavaCompile).configureEach {
+  options.encoding = 'UTF-8'
+
+  if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+    options.release.set(targetJavaVersion)
+  }
+}
+
+build {
+  dependsOn(shadowJar)
+}
+
+processResources {
+  def props = [version: version]
+  inputs.properties props
+  filteringCharset 'UTF-8'
+  filter ReplaceTokens, tokens: ["version": project.version]
 }

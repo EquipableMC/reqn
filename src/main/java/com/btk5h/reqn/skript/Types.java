@@ -63,7 +63,6 @@ public class Types {
             return o.toString();
           }
 
-          @Override
           public String getVariableNamePattern() {
             return ".*";
           }
